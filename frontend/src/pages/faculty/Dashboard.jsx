@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Download, FileText, Calendar } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
+import { generateFacultyExcelGrid, downloadWorkbook } from '../../utils/exporter';
 
 const FacultyDashboard = () => {
     const { user } = useAuth();
@@ -32,10 +33,8 @@ const FacultyDashboard = () => {
     };
 
     const handleDownloadExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(timetable);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "My_Timetable");
-        XLSX.writeFile(wb, `Timetable_${user.name?.replace(/\s+/g, '_')}.xlsx`);
+        const ws = generateFacultyExcelGrid(timetable, user.name);
+        downloadWorkbook({ "My_Timetable": ws }, `Timetable_${user.name?.replace(/\s+/g, '_')}.xlsx`);
     };
 
     const displaySectionName = (year, name) => {

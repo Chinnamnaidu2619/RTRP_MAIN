@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Calendar, Download, RefreshCcw, FileText, FileSpreadsheet } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
-import * as XLSX from 'xlsx';
+import { generateExcelGrid, downloadWorkbook } from '../../utils/exporter';
 
 const TimetableManager = () => {
     const [timetable, setTimetable] = useState([]);
@@ -42,22 +42,44 @@ const TimetableManager = () => {
     };
 
     const handleDownloadPDF = () => {
-        const element = printRef.current;
-        const opt = {
-            margin: 0.5,
-            filename: 'timetable.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
+        try {
+            const element = printRef.current;
+            if (!element) throw new Error('Preview element not found');
+
+            const opt = {
+                margin: 0.5,
+                filename: 'timetable.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save();
+        } catch (error) {
+            console.error('PDF Export Error:', error);
+            alert('Failed to export PDF: ' + error.message);
+        }
     };
 
     const handleDownloadExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(timetable);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Timetable");
-        XLSX.writeFile(wb, "Timetable.xlsx");
+        try {
+            console.log('Generating Excel...', grouped);
+            const sections = Object.entries(grouped);
+            const sheets = {};
+            
+            sections.forEach(([name, classes]) => {
+                sheets[name] = generateExcelGrid(classes, name);
+            });
+
+            if (sections.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            downloadWorkbook(sheets, "Master_Timetable.xlsx");
+        } catch (error) {
+            console.error('Excel Export Error:', error);
+            alert('Failed to export Excel: ' + error.message);
+        }
     };
 
     // Group by section for display

@@ -4,6 +4,7 @@ import { Calendar, Download, Building, FileText, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
+import { generateExcelGrid, downloadWorkbook } from '../utils/exporter';
 
 const StudentTimetable = () => {
     const [timetable, setTimetable] = useState([]);
@@ -76,10 +77,8 @@ const StudentTimetable = () => {
 
     const handleDownloadExcel = () => {
         const sectionData = timetable.filter(t => t.section_name === selectedSection.name && t.year === selectedSection.year);
-        const ws = XLSX.utils.json_to_sheet(sectionData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, `Timetable_${selectedSection.name}`);
-        XLSX.writeFile(wb, `Timetable_${selectedSection.year}_${selectedSection.name}.xlsx`);
+        const ws = generateExcelGrid(sectionData, displaySectionName(selectedSection.year, selectedSection.name));
+        downloadWorkbook({ "Timetable": ws }, `Timetable_${selectedSection.year}_${selectedSection.name}.xlsx`);
     };
 
     if (loading) return <div className="text-center mt-10">Loading timetables...</div>;

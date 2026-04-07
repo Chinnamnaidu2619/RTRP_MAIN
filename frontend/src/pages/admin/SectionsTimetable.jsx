@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Calendar, Download, Building, FileText } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
+import { generateExcelGrid, downloadWorkbook } from '../../utils/exporter';
 
 const SectionsTimetable = () => {
     const [timetable, setTimetable] = useState([]);
@@ -75,10 +76,8 @@ const SectionsTimetable = () => {
 
     const handleDownloadExcel = () => {
         const sectionData = timetable.filter(t => t.section_name === selectedSection.name && t.year === selectedSection.year);
-        const ws = XLSX.utils.json_to_sheet(sectionData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, `Timetable_${selectedSection.name}`);
-        XLSX.writeFile(wb, `Timetable_${selectedSection.year}_${selectedSection.name}.xlsx`);
+        const ws = generateExcelGrid(sectionData, displaySectionName(selectedSection.year, selectedSection.name));
+        downloadWorkbook({ "Timetable": ws }, `Timetable_${selectedSection.year}_${selectedSection.name}.xlsx`);
     };
 
     if (loading) return <div className="text-center mt-10">Loading timetables...</div>;
