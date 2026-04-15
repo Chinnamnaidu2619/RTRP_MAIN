@@ -4,7 +4,7 @@ import { Calendar, Download, Building, FileText, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
-import { generateExcelGrid, downloadWorkbook } from '../utils/exporter';
+import { generateExcelGrid, downloadWorkbook, robustDownload } from '../utils/exporter';
 
 const StudentTimetable = () => {
     const [timetable, setTimetable] = useState([]);
@@ -72,7 +72,10 @@ const StudentTimetable = () => {
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
-        html2pdf().set(opt).from(element).save();
+        html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+            const pdfBase64 = pdf.output('datauristring');
+            robustDownload(opt.filename, pdfBase64, 'application/pdf');
+        }).catch(err => console.error(err));
     };
 
     const handleDownloadExcel = () => {

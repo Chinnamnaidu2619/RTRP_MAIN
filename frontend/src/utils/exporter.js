@@ -71,7 +71,40 @@ export const generateFacultyExcelGrid = (classes, facultyName) => {
 };
 
 /**
- * Downloads a workbook with one or more sheets using Blob for browser compatibility.
+ * Utility to post base64 data to the backend to trigger a native browser download,
+ * completely immune to frontend download managers (like IDM) that mess up blobs.
+ */
+export const robustDownload = (filename, base64Content, contentType) => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/download';
+
+    const inputFilename = document.createElement('input');
+    inputFilename.type = 'hidden';
+    inputFilename.name = 'filename';
+    inputFilename.value = filename;
+
+    const inputContent = document.createElement('input');
+    inputContent.type = 'hidden';
+    inputContent.name = 'content';
+    inputContent.value = base64Content;
+
+    const inputType = document.createElement('input');
+    inputType.type = 'hidden';
+    inputType.name = 'type';
+    inputType.value = contentType;
+
+    form.appendChild(inputFilename);
+    form.appendChild(inputContent);
+    form.appendChild(inputType);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+};
+
+/**
+ * Downloads a workbook with one or more sheets.
+ * Uses backend echo download to bypass all frontend mangling.
  * @param {Object} sheets - Map of sheet names to worksheets { "Sheet1": ws1, "Sheet2": ws2 }
  * @param {string} filename - Filename to save as
  */
@@ -79,25 +112,14 @@ export const downloadWorkbook = (sheets, filename) => {
     try {
         const wb = XLSX.utils.book_new();
         Object.entries(sheets).forEach(([name, ws]) => {
-            // Sheet names must be <= 31 chars
             const safeName = name.substring(0, 31).replace(/[\\/?*[\]]/g, '_');
             XLSX.utils.book_append_sheet(wb, ws, safeName);
         });
 
-        // Use write to get buffer instead of writeFile which can be unreliable in some bundlers
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-        
-        const url = window.URL.createObjectURL(data);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        const excelBase64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+        robustDownload(filename, excelBase64, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     } catch (err) {
         console.error('Error in downloadWorkbook:', err);
-        throw err;
+        alert('Export failed. Please check the console for details.');
     }
 };

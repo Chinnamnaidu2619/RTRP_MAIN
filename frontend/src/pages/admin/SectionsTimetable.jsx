@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Calendar, Download, Building, FileText } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
-import { generateExcelGrid, downloadWorkbook } from '../../utils/exporter';
+import { generateExcelGrid, downloadWorkbook, robustDownload } from '../../utils/exporter';
 
 const SectionsTimetable = () => {
     const [timetable, setTimetable] = useState([]);
@@ -71,7 +71,10 @@ const SectionsTimetable = () => {
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
-        html2pdf().set(opt).from(element).save();
+        html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+            const pdfBase64 = pdf.output('datauristring');
+            robustDownload(opt.filename, pdfBase64, 'application/pdf');
+        }).catch(err => console.error(err));
     };
 
     const handleDownloadExcel = () => {
@@ -181,6 +184,12 @@ const SectionsTimetable = () => {
                                                                 <div className="text-xs font-semibold text-indigo-600 mb-1">
                                                                     {slot.faculty_name}
                                                                 </div>
+                                                                {slot.subject_type === 'Lab' && slot.viva_faculty_name && (
+                                                                    <div className="text-xs font-semibold text-purple-600 mb-1 flex items-center gap-1">
+                                                                        <span className="text-[9px] bg-purple-200 text-purple-700 px-1 py-0.5 rounded font-bold">VIVA</span>
+                                                                        {slot.viva_faculty_name}
+                                                                    </div>
+                                                                )}
                                                                 <div className="flex justify-between items-end mt-2">
                                                                     <span className="text-[10px] font-mono text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">
                                                                         Room {slot.room_id}

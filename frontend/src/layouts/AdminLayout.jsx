@@ -8,6 +8,7 @@ import {
     BookOpen, 
     MapPin, 
     Calendar,
+    FlaskConical,
     LogOut
 } from 'lucide-react';
 
@@ -24,6 +25,8 @@ const AdminLayout = () => {
         { path: '/admin/rooms', icon: MapPin, label: 'Rooms' },
         { path: '/admin/timetable', icon: Calendar, label: 'Timetable Manager' },
         { path: '/admin/sections', icon: BookOpen, label: 'Section Schedules' },
+        { path: '/admin/faculty-schedules', icon: Users, label: 'Faculty Schedules' },
+        { path: '/admin/lab-timetable', icon: FlaskConical, label: 'Lab Timetable' },
     ];
 
     const handleLogout = () => {

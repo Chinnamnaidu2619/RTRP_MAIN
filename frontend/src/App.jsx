@@ -14,6 +14,8 @@ import FacultyList from './pages/admin/FacultyList';
 import RoomsList from './pages/admin/RoomsList';
 import TimetableManager from './pages/admin/TimetableManager';
 import SectionsTimetable from './pages/admin/SectionsTimetable';
+import FacultyTimetable from './pages/admin/FacultyTimetable';
+import LabTimetable from './pages/admin/LabTimetable';
 import StudentTimetable from './pages/StudentTimetable';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -49,6 +51,8 @@ const App = () => {
                         <Route path="rooms" element={<RoomsList />} />
                         <Route path="timetable" element={<TimetableManager />} />
                         <Route path="sections" element={<SectionsTimetable />} />
+                        <Route path="faculty-schedules" element={<FacultyTimetable />} />
+                        <Route path="lab-timetable" element={<LabTimetable />} />
                     </Route>
 
                     {/* Faculty Routes */}

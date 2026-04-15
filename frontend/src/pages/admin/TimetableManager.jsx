@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Calendar, Download, RefreshCcw, FileText, FileSpreadsheet } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
-import { generateExcelGrid, downloadWorkbook } from '../../utils/exporter';
+import { generateExcelGrid, downloadWorkbook, robustDownload } from '../../utils/exporter';
 
 const TimetableManager = () => {
     const [timetable, setTimetable] = useState([]);
@@ -15,8 +15,10 @@ const TimetableManager = () => {
         try {
             const res = await axios.get('http://localhost:5000/api/timetable');
             setTimetable(res.data);
+            return res.data;
         } catch (error) {
             console.error(error);
+            return [];
         } finally {
             setLoading(false);
         }
@@ -30,8 +32,10 @@ const TimetableManager = () => {
         setGenerating(true);
         try {
             await axios.post('http://localhost:5000/api/timetable/generate');
-            await fetchTimetable();
-            alert('Timetable generated successfully!');
+            const data = await fetchTimetable();
+            if (data.length > 0) {
+                alert('Timetable generated successfully!');
+            }
         } catch (error) {
             console.error('Generation Error', error);
             const errorMessage = error.response?.data?.details || error.response?.data?.error || 'Failed to generate. Ensure data is correctly uploaded and there are no conflicts.';
@@ -53,7 +57,13 @@ const TimetableManager = () => {
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+                const pdfBase64 = pdf.output('datauristring');
+                robustDownload(opt.filename, pdfBase64, 'application/pdf');
+            }).catch(error => {
+                console.error('PDF Generation Error:', error);
+                alert('Failed to generate PDF: ' + error.message);
+            });
         } catch (error) {
             console.error('PDF Export Error:', error);
             alert('Failed to export PDF: ' + error.message);
@@ -128,7 +138,7 @@ const TimetableManager = () => {
                 <div className="text-center p-12 text-gray-500">Loading schedule...</div>
             ) : timetable.length === 0 ? (
                  <div className="text-center p-12 bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-500">
-                     No timetable generated yet. Click Auto-Generate to create one.
+                     No timetable data found. Upload faculty, subjects, sections and rooms first, then click Auto-Generate.
                  </div>
             ) : (
                 <div ref={printRef} className="space-y-8 print:p-8">
