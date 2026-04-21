@@ -25,7 +25,7 @@ const SectionsTimetable = () => {
              try {
                 const [sectionsRes, timetableRes] = await Promise.all([
                     axios.get('http://localhost:5000/api/sections'),
-                    axios.get('http://localhost:5000/api/timetable')
+                    axios.get('http://localhost:5000/api/public-timetable')
                 ]);
 
                 const uniqueSet = new Set();
@@ -185,9 +185,9 @@ const SectionsTimetable = () => {
                                                                     {slot.faculty_name}
                                                                 </div>
                                                                 {slot.subject_type === 'Lab' && slot.viva_faculty_name && (
-                                                                    <div className="text-xs font-semibold text-purple-600 mb-1 flex items-center gap-1">
-                                                                        <span className="text-[9px] bg-purple-200 text-purple-700 px-1 py-0.5 rounded font-bold">VIVA</span>
-                                                                        {slot.viva_faculty_name}
+                                                                    <div className="text-[10px] font-semibold text-purple-600 mb-1 flex items-center gap-1.5 mt-1 border-t border-purple-200/50 pt-1.5">
+                                                                        <span className="text-[8px] bg-purple-600 text-white px-1 py-0.5 rounded-sm font-black uppercase tracking-tighter">VIVA</span>
+                                                                        <span className="truncate">{slot.viva_faculty_name}</span>
                                                                     </div>
                                                                 )}
                                                                 <div className="flex justify-between items-end mt-2">

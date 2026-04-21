@@ -59,3 +59,59 @@ CREATE TABLE IF NOT EXISTS Timetable (
     FOREIGN KEY (room_id) REFERENCES Rooms(room_id),
     FOREIGN KEY (day, period) REFERENCES TimeSlots(day, period)
 );
+
+CREATE TABLE IF NOT EXISTS SubjectFaculty (
+    subject_code TEXT NOT NULL,
+    year INTEGER NOT NULL,
+    faculty_id INTEGER NOT NULL,
+    PRIMARY KEY (subject_code, year, faculty_id),
+    FOREIGN KEY (subject_code, year) REFERENCES Subjects(subject_code, year),
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id)
+);
+
+CREATE TABLE IF NOT EXISTS Absences (
+    absence_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    faculty_id INTEGER NOT NULL,
+    absence_date TEXT NOT NULL,
+    UNIQUE(faculty_id, absence_date),
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id)
+);
+
+CREATE TABLE IF NOT EXISTS SubstituteAssignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timetable_id INTEGER NOT NULL,
+    absence_date TEXT NOT NULL,
+    substitute_faculty_id INTEGER NOT NULL,
+    UNIQUE(timetable_id, absence_date),
+    FOREIGN KEY (timetable_id) REFERENCES Timetable(id),
+    FOREIGN KEY (substitute_faculty_id) REFERENCES Faculty(faculty_id)
+);
+
+CREATE TABLE IF NOT EXISTS FacultyAttendance (
+    attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    faculty_id INTEGER NOT NULL,
+    date TEXT NOT NULL, -- YYYY-MM-DD
+    status TEXT CHECK(status IN ('Present', 'Absent')) NOT NULL DEFAULT 'Present',
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id),
+    UNIQUE(faculty_id, date)
+);
+
+CREATE TABLE IF NOT EXISTS FacultyPreferences (
+    faculty_id INTEGER PRIMARY KEY,
+    unavailable_slots TEXT, -- JSON string of {day: [periods]}
+    preferred_slots TEXT,   -- JSON string of {day: [periods]}
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id)
+);
+
+CREATE TABLE IF NOT EXISTS Substitutions (
+    substitution_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    original_faculty_id INTEGER NOT NULL,
+    substitute_faculty_id INTEGER NOT NULL,
+    timetable_id INTEGER NOT NULL,
+    date TEXT NOT NULL, -- YYYY-MM-DD
+    status TEXT CHECK(status IN ('Pending', 'Active', 'Completed')) NOT NULL DEFAULT 'Active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (original_faculty_id) REFERENCES Faculty(faculty_id),
+    FOREIGN KEY (substitute_faculty_id) REFERENCES Faculty(faculty_id),
+    FOREIGN KEY (timetable_id) REFERENCES Timetable(id)
+);

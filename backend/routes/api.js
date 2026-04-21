@@ -11,9 +11,9 @@ router.get('/sections', (req, res) => {
     });
 });
 
-router.get('/timetable', (req, res) => {
+router.get('/public-timetable', (req, res) => {
     const query = `
-        SELECT t.id, t.day, t.period, s.section_name, s.year,
+        SELECT t.*, s.section_name, s.year,
                sub.subject_name, sub.subject_type, f.faculty_name, r.room_id,
                vf.faculty_name as viva_faculty_name
         FROM Timetable t
@@ -23,27 +23,6 @@ router.get('/timetable', (req, res) => {
         JOIN Subjects sub ON sub.subject_code = t.subject_code AND sub.year = s.year
         LEFT JOIN Faculty vf ON t.viva_faculty_id = vf.faculty_id
         ORDER BY s.year, s.section_name, t.day, t.period
-    `;
-    db.all(query, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Lab timetable — all lab sessions grouped by room
-router.get('/timetable/labs', (req, res) => {
-    const query = `
-        SELECT t.id, t.day, t.period, s.section_name, s.year,
-               sub.subject_name, sub.subject_type, f.faculty_name, r.room_id,
-               vf.faculty_name as viva_faculty_name
-        FROM Timetable t
-        JOIN Sections s ON t.section_id = s.section_id
-        JOIN Faculty f ON t.faculty_id = f.faculty_id
-        JOIN Rooms r ON t.room_id = r.room_id
-        JOIN Subjects sub ON sub.subject_code = t.subject_code AND sub.year = s.year
-        LEFT JOIN Faculty vf ON t.viva_faculty_id = vf.faculty_id
-        WHERE sub.subject_type = 'Lab'
-        ORDER BY r.room_id, t.day, t.period
     `;
     db.all(query, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });

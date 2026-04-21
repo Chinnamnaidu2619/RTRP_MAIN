@@ -26,7 +26,7 @@ const StudentTimetable = () => {
             try {
                 const [sectionsRes, timetableRes] = await Promise.all([
                     axios.get('http://localhost:5000/api/sections'),
-                    axios.get('http://localhost:5000/api/timetable')
+                    axios.get('http://localhost:5000/api/public-timetable')
                 ]);
 
                 const uniqueSet = new Set();

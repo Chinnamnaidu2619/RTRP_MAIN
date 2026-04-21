@@ -16,6 +16,9 @@ import TimetableManager from './pages/admin/TimetableManager';
 import SectionsTimetable from './pages/admin/SectionsTimetable';
 import FacultyTimetable from './pages/admin/FacultyTimetable';
 import LabTimetable from './pages/admin/LabTimetable';
+import WorkloadStats from './pages/admin/WorkloadStats';
+import PreferencesManager from './pages/faculty/PreferencesManager';
+import Attendance from './pages/admin/Attendance';
 import StudentTimetable from './pages/StudentTimetable';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -53,6 +56,8 @@ const App = () => {
                         <Route path="sections" element={<SectionsTimetable />} />
                         <Route path="faculty-schedules" element={<FacultyTimetable />} />
                         <Route path="lab-timetable" element={<LabTimetable />} />
+                        <Route path="attendance" element={<Attendance />} />
+                        <Route path="workload" element={<WorkloadStats />} />
                     </Route>
 
                     {/* Faculty Routes */}
@@ -62,6 +67,7 @@ const App = () => {
                         </ProtectedRoute>
                     }>
                         <Route index element={<FacultyDashboard />} />
+                        <Route path="preferences" element={<PreferencesManager />} />
                     </Route>
                 </Routes>
             </Router>

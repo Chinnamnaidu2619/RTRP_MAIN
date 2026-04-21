@@ -121,11 +121,14 @@ const FacultyDashboard = () => {
                 </div>
             ) : (
                 <div ref={printRef} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                         <h2 className="text-lg font-bold text-gray-800 flex items-center">
                             <Calendar className="w-5 h-5 mr-2 text-indigo-600" />
                             My Weekly Timetable
                         </h2>
+                        <div className="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-xs font-bold shadow-sm">
+                            Workload: {timetable.length} hr/week
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto">

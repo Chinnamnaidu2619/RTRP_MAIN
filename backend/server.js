@@ -12,6 +12,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const authRoutes = require('./routes/auth').router;
 const apiRoutes = require('./routes/api');
 const timetableRoutes = require('./routes/timetable');
+const preferenceRoutes = require('./routes/preferences');
+const attendanceRoutes = require('./routes/attendance');
 
 // Test route
 app.get('/api/health', (req, res) => {
@@ -22,8 +24,10 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/timetable', timetableRoutes);
+app.use('/api/preferences', preferenceRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
-// Echo server for robust file downloads bypassing frontend browser extensions (like IDM)
+// Echo server for robust file downloads
 // Placed BEFORE apiRoutes so it doesn't get blocked by the verifyToken middleware
 app.post('/api/download', (req, res) => {
     const { filename, content, type } = req.body;

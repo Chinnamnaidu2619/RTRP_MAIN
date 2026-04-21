@@ -131,7 +131,10 @@ const FacultyTimetable = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" ref={printRef}>
                     <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                         <h2 className="text-xl font-bold text-gray-800">
-                            {faculties.find(f => f.faculty_id === parseInt(selectedFacultyId))?.faculty_name}'s Timetable
+                            {faculties.find(f => f.faculty_id === parseInt(selectedFacultyId))?.faculty_name}'s Timetable 
+                            <span className="ml-2 text-indigo-600">
+                                (Workload: {timetable.length} hours/week)
+                            </span>
                         </h2>
                     </div>
                     
@@ -160,16 +163,34 @@ const FacultyTimetable = () => {
                                                 <React.Fragment key={p}>
                                                     <td className="px-3 py-3 text-center border-r last:border-r-0">
                                                         {slot ? (
-                                                            <div className="flex flex-col gap-1 inline-flex p-2 rounded-lg bg-indigo-50 border border-indigo-100/50 w-full min-h-[5rem] justify-center shadow-sm">
-                                                                <span className="font-bold text-indigo-700 line-clamp-2" title={slot.subject_name}>
-                                                                    {slot.subject_name}
-                                                                </span>
-                                                                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 py-0.5 px-2 rounded-full w-max mx-auto border border-emerald-100">
+                                                            <div className={`flex flex-col gap-1 inline-flex p-2 rounded-lg border w-full min-h-[5rem] justify-center shadow-sm ${
+                                                                slot.role === 'viva' 
+                                                                    ? 'bg-purple-50 border-purple-100 hover:border-purple-300' 
+                                                                    : 'bg-indigo-50 border-indigo-100 hover:border-indigo-300'
+                                                            }`}>
+                                                                 <div className="flex justify-between items-start">
+                                                                    <span className="font-bold border-b border-transparent group-hover:border-current line-clamp-2" title={slot.subject_name}>
+                                                                        {slot.subject_name}
+                                                                    </span>
+                                                                    {slot.role === 'viva' && (
+                                                                        <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">VIVA</span>
+                                                                    )}
+                                                                </div>
+                                                                <span className={`text-xs font-semibold py-0.5 px-2 rounded-full w-max mx-auto border ${
+                                                                    slot.role === 'viva' ? 'text-purple-600 bg-purple-100/50 border-purple-200' : 'text-emerald-600 bg-emerald-50 border-emerald-100'
+                                                                }`}>
                                                                     {displaySectionName(slot.year, slot.section_name)}
                                                                 </span>
-                                                                <div className="flex items-center justify-center gap-1 text-xs text-indigo-500/80 mt-1">
-                                                                    <Building className="w-3 h-3" />
-                                                                    <span>{slot.room_id}</span>
+                                                                <div className="flex items-center justify-between gap-1 text-[10px] text-gray-500 mt-1">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <Building className="w-3 h-3" />
+                                                                        <span>{slot.room_id}</span>
+                                                                    </div>
+                                                                    {slot.viva_faculty_name && (
+                                                                        <div className="flex items-center gap-1 italic truncate max-w-[80px]">
+                                                                            <span>v: {slot.viva_faculty_name.split(' ').pop()}</span>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         ) : (

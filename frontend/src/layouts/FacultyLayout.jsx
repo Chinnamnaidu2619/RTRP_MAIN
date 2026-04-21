@@ -4,7 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
     Calendar,
     LogOut,
-    User
+    User,
+    Settings
 } from 'lucide-react';
 
 const FacultyLayout = () => {
@@ -31,6 +32,12 @@ const FacultyLayout = () => {
                         </div>
                         
                         <div className="flex items-center space-x-6">
+                            <Link to="/faculty" className={`text-sm font-medium ${location.pathname === '/faculty' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                My Timetable
+                            </Link>
+                            <Link to="/faculty/preferences" className={`text-sm font-medium ${location.pathname === '/faculty/preferences' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                My Preferences
+                            </Link>
                             <div className="flex items-center text-gray-700 bg-gray-100 px-4 py-2 rounded-full hidden sm:flex">
                                 <User className="w-4 h-4 mr-2" />
                                 <span className="text-sm font-medium">{user?.name || 'Faculty Member'}</span>
